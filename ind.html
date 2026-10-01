@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Requirement 1: viewport meta tag (zoom stays enabled for accessibility) -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malik Zubair | Responsive Web Layout</title>
+<style>
+/* ---------- Design tokens ---------- */
+:root{
+  --ink:#0f2a43; --azure:#1f6feb; --green:#2f9e6b; --alert:#e8731a;
+  --paper:#f4f7fb; --card:#ffffff; --line:#d6e0ec; --muted:#4a617a;
+  --gap:clamp(1rem,3vw,2rem);
+  --h1:clamp(2rem,6vw,4rem);
+  --h2:clamp(1.5rem,3.5vw,2.25rem);
+  --body:clamp(1rem,2.5vw,1.125rem);
+}
+/* ---------- Mobile-first base CSS ---------- */
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;font-size:var(--body);line-height:1.6;color:var(--ink);background:var(--paper)}
+img,svg{max-width:100%;display:block}
+a{color:var(--azure)}
+:focus-visible{outline:3px solid var(--alert);outline-offset:3px}
+h1,h2,h3{line-height:1.15;margin:0 0 .5em}
+h1{font-size:var(--h1)} h2{font-size:var(--h2)} h3{font-size:1.25rem}
+p{margin:0 0 1em;max-width:65ch}
+
+/* Macro layout = CSS Grid (header / main / footer) */
+.page{display:grid;grid-template-columns:1fr;grid-template-areas:"header" "main" "footer";min-height:100vh}
+.site-header{grid-area:header}
+main{grid-area:main;display:grid;grid-template-columns:1fr;gap:var(--gap);padding:var(--gap);max-width:1200px;width:100%;margin-inline:auto}
+.site-footer{grid-area:footer}
+.sidebar{display:none}
+
+/* ---------- Header + navigation (Flexbox) ---------- */
+.site-header{position:sticky;top:0;z-index:10;background:var(--ink);color:#fff}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:.5rem var(--gap);max-width:1200px;margin-inline:auto}
+.logo{color:#fff;font-weight:800;font-size:1.25rem;text-decoration:none;min-height:44px;display:flex;align-items:center}
+.logo span{color:#7fb2ff}
+.menu-btn,.close-btn{min-width:44px;min-height:44px;border:2px solid #7fb2ff;background:transparent;color:#fff;font:inherit;font-weight:600;border-radius:10px;padding:0 1rem;cursor:pointer}
+.menu-btn:hover,.close-btn:hover{background:#1c4468}
+
+/* Mobile menu = Popover API (no JavaScript) */
+#menu{position:fixed;inset:0 0 0 auto;width:min(80vw,320px);height:100%;margin:0;padding:1rem;border:0;background:var(--ink);color:#fff;flex-direction:column;gap:.25rem}
+#menu:popover-open{display:flex}
+#menu::backdrop{background:rgba(15,42,67,.65)}
+#menu .close-btn{align-self:flex-end;margin-bottom:1rem}
+#menu a{color:#fff;text-decoration:none;display:flex;align-items:center;min-height:48px;padding:0 1rem;border-radius:10px;font-weight:600}
+#menu a:hover{background:#1c4468}
+
+/* ---------- Hero ---------- */
+.hero{display:flex;flex-direction:column;gap:var(--gap);background:linear-gradient(135deg,#0f2a43,#1f4f8f);color:#fff;border-radius:20px;padding:clamp(1.5rem,5vw,3.5rem)}
+.hero p{color:#d8e6f7}
+.hero-art{display:none}
+.btn-row{display:flex;flex-wrap:wrap;gap:.75rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 1.5rem;border-radius:12px;font-weight:700;text-decoration:none;border:2px solid transparent}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover{background:#25825a}
+.btn-ghost{border-color:#fff;color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.15)}
+
+/* ---------- Feature grid: fluid, no breakpoints needed ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:var(--gap)}
+/* Micro layout = Flexbox inside each card */
+.card{display:flex;flex-direction:column;gap:.75rem;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.25rem}
+.card .icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;font-size:1.5rem;background:#e6f0ff}
+.card .btn{margin-top:auto;background:var(--azure);color:#fff;align-self:flex-start}
+.card p{margin:0}
+
+/* ---------- Skills + contact ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(1.25rem,4vw,2rem)}
+.bars{list-style:none;margin:0;padding:0;display:grid;gap:1rem}
+.bars li{display:flex;flex-direction:column;gap:.35rem;font-weight:600}
+.bars progress{width:100%;height:12px;accent-color:var(--azure)}
+form{display:grid;gap:1rem}
+label{display:flex;flex-direction:column;gap:.35rem;font-weight:600}
+input,textarea{font:inherit;min-height:48px;padding:.6rem .8rem;border:2px solid var(--line);border-radius:10px;width:100%}
+textarea{min-height:120px;resize:vertical}
+input:focus,textarea:focus{border-color:var(--azure)}
+.form-note{min-height:1.5em;color:var(--green);font-weight:600;margin:0}
+
+.site-footer{background:var(--ink);color:#c9d8ea;text-align:center;padding:1.5rem var(--gap)}
+.site-footer p{margin:0 auto}
+
+/* ---------- Bonus: Container Query (future-proofing) ---------- */
+.card-wrap{container-type:inline-size}
+@container (min-width:520px){
+  .card{flex-direction:row;align-items:center}
+  .card .btn{margin-top:0;margin-left:auto}
+}
+
+/* ---------- Breakpoint 1: 480px (large phones) ---------- */
+@media (min-width:480px){
+  .btn-row .btn{min-width:160px}
+}
+
+/* ---------- Breakpoint 2: 768px (tablets) - inline nav replaces popover ---------- */
+@media (min-width:768px){
+  .menu-btn,.close-btn{display:none}
+  #menu{position:static;display:flex;flex-direction:row;width:auto;height:auto;padding:0;background:transparent;gap:.25rem;overflow:visible}
+  #menu a{padding:0 .9rem}
+  .hero{flex-direction:row;align-items:center;justify-content:space-between}
+  .hero-text{flex:1 1 55%}
+  .hero-art{display:flex;flex:1 1 35%;justify-content:center;font-size:clamp(5rem,14vw,9rem)}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+}
+
+/* ---------- Breakpoint 3: 1024px (desktop) - sidebar appears ---------- */
+@media (min-width:1024px){
+  main{grid-template-columns:260px 1fr;grid-template-areas:"side content"}
+  .sidebar{display:block;grid-area:side;align-self:start;position:sticky;top:5rem}
+  .content{grid-area:content;display:grid;gap:var(--gap)}
+  .sidebar ul{list-style:none;margin:0;padding:0}
+  .sidebar a{display:flex;align-items:center;min-height:44px;padding:0 .75rem;text-decoration:none;font-weight:600;border-radius:8px;color:var(--ink)}
+  .sidebar a:hover{background:#e6f0ff}
+}
+@media (min-width:1024px){ .content{grid-column:2} }
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header">
+    <div class="bar">
+      <a class="logo" href="#top">Malik<span>.dev</span></a>
+      <button class="menu-btn" popovertarget="menu" aria-label="Open menu">&#9776; Menu</button>
+      <nav id="menu" popover aria-label="Main navigation">
+        <button class="close-btn" popovertarget="menu" popovertargetaction="hide" aria-label="Close menu">&#10005; Close</button>
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <aside class="sidebar panel" aria-label="Page sections">
+      <h3>On this page</h3>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </aside>
+
+    <div class="content">
+      <section class="hero" id="about">
+        <div class="hero-text">
+          <h1>Layouts that fit every screen.</h1>
+          <p>I'm Malik Zubair, a frontend developer intern at DecodeLabs. This page is my Project 2: a mobile-first, fully responsive layout built with CSS Grid, Flexbox, fluid type and media queries.</p>
+          <div class="btn-row">
+            <a class="btn btn-primary" href="#projects">See my work</a>
+            <a class="btn btn-ghost" href="#contact">Get in touch</a>
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">&#128241;&#128187;</div>
+      </section>
+
+      <section id="projects">
+        <h2>Projects</h2>
+        <div class="grid">
+          <div class="card-wrap"><article class="card"><div class="icon" aria-hidden="true">&#127912;</div><div><h3>Landing page</h3><p>Semantic HTML and clean CSS from scratch.</p></div><a class="btn" href="#contact">Discuss</a></article></div>
+          <div class="card-wrap"><article class="card"><div class="icon" aria-hidden="true">&#128241;</div><div><h3>Responsive layout</h3><p>Grid for the page, Flexbox for components.</p></div><a class="btn" href="#contact">Discuss</a></article></div>
+          <div class="card-wrap"><article class="card"><div class="icon" aria-hidden="true">&#9889;</div><div><h3>Interactive UI</h3><p>Next milestone: components with JavaScript.</p></div><a class="btn" href="#contact">Discuss</a></article></div>
+        </div>
+      </section>
+
+      <div class="two-col">
+        <section class="panel" id="skills">
+          <h2>Skills</h2>
+          <ul class="bars">
+            <li>HTML5 <progress max="100" value="90"></progress></li>
+            <li>CSS Grid and Flexbox <progress max="100" value="85"></progress></li>
+            <li>Media queries <progress max="100" value="80"></progress></li>
+            <li>Accessibility <progress max="100" value="75"></progress></li>
+          </ul>
+        </section>
+
+        <section class="panel" id="contact">
+          <h2>Contact</h2>
+          <form id="contact-form">
+            <label>Name <input type="text" name="name" autocomplete="name" required></label>
+            <label>Email <input type="email" name="email" autocomplete="email" required></label>
+            <label>Message <textarea name="message" required></textarea></label>
+            <button class="btn btn-primary" type="submit">Send message</button>
+            <p class="form-note" id="note" role="status"></p>
+          </form>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 Malik Zubair. Frontend Development, Project 2: Responsive Web Layout. DecodeLabs Batch 2026.</p>
+  </footer>
+</div>
+
+<script>
+  // Optional: demo form feedback only (navigation itself needs no JS)
+  document.getElementById('contact-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('note').textContent = 'Message sent. Thank you!';
+    this.reset();
+  });
+</script>
+</body>
+</html>
